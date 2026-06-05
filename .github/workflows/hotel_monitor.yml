@@ -25,6 +25,7 @@ jobs:
       - name: Run hotel monitor
         env:
           RAKUTEN_APP_ID: ${{ secrets.RAKUTEN_APP_ID }}
+          RAKUTEN_ACCESS_KEY: ${{ secrets.RAKUTEN_ACCESS_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GAS_GMAIL_WEBHOOK_URL: ${{ secrets.GAS_GMAIL_WEBHOOK_URL }}

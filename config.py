@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 RAKUTEN_APP_ID = os.environ.get("RAKUTEN_APP_ID")
+RAKUTEN_ACCESS_KEY = os.environ.get("RAKUTEN_ACCESS_KEY")
 DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL")
 GMAIL_ADDRESS = os.environ.get("GMAIL_ADDRESS") or None
 GAS_GMAIL_WEBHOOK_URL = os.environ.get("GAS_GMAIL_WEBHOOK_URL") or None
@@ -11,7 +12,7 @@ SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID")
 
 LOCAL_TOKEN_PATH = Path.home() / "OneDrive" / "ドキュメント" / "Python" / "import" / "token.json"
 
-RAKUTEN_API_URL = "https://app.rakuten.co.jp/services/api/Travel/VacantHotelSearch/20170426"
+RAKUTEN_API_URL = "https://openapi.rakuten.co.jp/engine/api/Travel/VacantHotelSearch/20170426"
 REQUEST_HEADERS = {
     "Referer": "https://github.com/",
     "Origin": "https://github.com/"
@@ -40,6 +41,8 @@ def validate_config():
     missing = []
     if not RAKUTEN_APP_ID:
         missing.append("RAKUTEN_APP_ID")
+    if not RAKUTEN_ACCESS_KEY:
+        missing.append("RAKUTEN_ACCESS_KEY")
     if not DISCORD_WEBHOOK_URL:
         missing.append("DISCORD_WEBHOOK_URL")
     if not SPREADSHEET_ID:

@@ -3,7 +3,7 @@ import requests
 from logger import log_error, log_debug
 
 from config import (
-    RAKUTEN_APP_ID, RAKUTEN_API_URL, REQUEST_HEADERS,
+    RAKUTEN_APP_ID, RAKUTEN_ACCESS_KEY, REQUEST_HEADERS,
     REQUEST_TIMEOUT, MAX_RETRY, BREAKFAST_KEYWORDS
 )
 
@@ -22,6 +22,7 @@ def fetch_vacant_plans(
     """
     params = {
         "applicationId": RAKUTEN_APP_ID,
+        "accessKey": RAKUTEN_ACCESS_KEY,
         "hotelNo": hotel_no,
         "checkinDate": checkin_date.replace("/", "-"),  # YYYY-MM-DD 形式に統一
         "checkoutDate": checkout_date.replace("/", "-"),

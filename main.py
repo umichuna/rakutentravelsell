@@ -72,15 +72,17 @@ def main():
         try:
             log_info(f"処理中: {hotel['hotel_name']}")
 
-            # ホテル一覧に日程をマージ
-            hotel["checkin"] = checkin
-            hotel["checkout"] = checkout
+            # ホテル個別の日程があればそれを使い、なければ設定シートのグローバル値を使う
+            hotel_checkin = hotel.get("hotel_checkin") or checkin
+            hotel_checkout = hotel.get("hotel_checkout") or checkout
+            hotel["checkin"] = hotel_checkin
+            hotel["checkout"] = hotel_checkout
 
             # API呼び出し
             plans = fetch_vacant_plans(
                 hotel["hotel_no"],
-                checkin,
-                checkout,
+                hotel_checkin,
+                hotel_checkout,
                 adults,
                 rooms,
             )

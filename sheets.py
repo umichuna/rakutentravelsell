@@ -105,6 +105,11 @@ def get_hotels(client: gspread.Client) -> list[dict]:
         if not hotel_no or not hotel_name:
             continue
 
+        # H列: チェックイン日（空欄なら設定シートのグローバル値を使用）
+        hotel_checkin = row[7].strip() if len(row) > 7 else ""
+        # I列: チェックアウト日（空欄なら設定シートのグローバル値を使用）
+        hotel_checkout = row[8].strip() if len(row) > 8 else ""
+
         hotels.append({
             "row_index": idx,
             "hotel_name": hotel_name,
@@ -113,7 +118,9 @@ def get_hotels(client: gspread.Client) -> list[dict]:
             "reserved_price": reserved_price,
             "cancel_deadline": cancel_deadline,
             "reserved": reserved,
-            "monitoring": monitoring
+            "monitoring": monitoring,
+            "hotel_checkin": hotel_checkin or None,
+            "hotel_checkout": hotel_checkout or None,
         })
 
     return hotels
@@ -135,9 +142,9 @@ def update_hotel_prices(client: gspread.Client, row_idx: int, current_price: int
     current_price_str = str(current_price) if current_price is not None else "-"
     min_price_str = str(min_price) if min_price is not None else ""
 
-    sheet.update_cell(row_idx, 8, current_price_str)  # H列: 現在価格
-    sheet.update_cell(row_idx, 9, min_price_str)      # I列: 最安価格
-    sheet.update_cell(row_idx, 10, updated_at)        # J列: 最終取得日時
+    sheet.update_cell(row_idx, 10, current_price_str)  # J列: 現在価格
+    sheet.update_cell(row_idx, 11, min_price_str)      # K列: 最安価格
+    sheet.update_cell(row_idx, 12, updated_at)         # L列: 最終取得日時
 
 
 def append_log(client: gspread.Client, log_entry: dict):

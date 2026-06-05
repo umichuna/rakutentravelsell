@@ -51,5 +51,5 @@ def validate_config():
         missing.append("GOOGLE_TOKEN_JSON (or local token.json)")
 
     if missing:
-        print(f"❌ 必須環境変数が不足しています: {', '.join(missing)}")
+        print(f"[ERROR] 必須環境変数が不足しています: {', '.join(missing)}")
         sys.exit(1)

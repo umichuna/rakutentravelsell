@@ -3,7 +3,7 @@ import requests
 from logger import log_error, log_debug
 
 from config import (
-    RAKUTEN_APP_ID, RAKUTEN_ACCESS_KEY, REQUEST_HEADERS,
+    RAKUTEN_APP_ID, RAKUTEN_ACCESS_KEY, RAKUTEN_API_URL, REQUEST_HEADERS,
     REQUEST_TIMEOUT, MAX_RETRY, BREAKFAST_KEYWORDS
 )
 

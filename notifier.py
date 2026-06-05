@@ -1,11 +1,8 @@
-import smtplib
 import time
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import requests
 
 from config import DISCORD_WEBHOOK_URL
-from logger import log_error, log_debug
+from logger import log_error
 
 
 def notify_price_drop(drop_info: dict, email_address: str | None = None):
@@ -51,35 +48,36 @@ def send_discord(webhook_url: str, message: str) -> bool:
 
 
 def send_gmail_with_retry(to_address: str, subject: str, body: str) -> bool:
-    """Gmail で送信（リトライ付き）"""
-    from config import GMAIL_ADDRESS, GMAIL_APP_PASSWORD
+    """Gmail で送信（GAS Web App 経由）"""
+    from config import GAS_GMAIL_WEBHOOK_URL
 
-    if not GMAIL_ADDRESS or not GMAIL_APP_PASSWORD:
-        log_error("Gmail credentials not configured")
+    if not GAS_GMAIL_WEBHOOK_URL:
+        log_error("GAS_GMAIL_WEBHOOK_URL not configured")
         return False
+
+    payload = {
+        "to": to_address,
+        "subject": subject,
+        "body": body
+    }
 
     for attempt in range(3):
         try:
-            send_gmail(GMAIL_ADDRESS, GMAIL_APP_PASSWORD, to_address, subject, body)
-            return True
+            response = requests.post(
+                GAS_GMAIL_WEBHOOK_URL,
+                json=payload,
+                timeout=15
+            )
+            data = response.json()
+            if data.get("status") == "ok":
+                return True
+            else:
+                log_error(f"GAS Gmail error: {data.get('message', 'Unknown error')}")
         except Exception as e:
-            log_error(f"Gmail send attempt {attempt + 1} failed: {str(e)}")
+            log_error(f"GAS Gmail attempt {attempt + 1} failed: {str(e)}")
             if attempt < 2:
                 time.sleep(1)
     return False
-
-
-def send_gmail(from_address: str, app_password: str, to_address: str, subject: str, body: str):
-    """Gmail 送信（SMTP over SSL）"""
-    msg = MIMEMultipart()
-    msg["From"] = from_address
-    msg["To"] = to_address
-    msg["Subject"] = subject
-    msg.attach(MIMEText(body, "plain", "utf-8"))
-
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(from_address, app_password)
-        server.send_message(msg)
 
 
 def build_discord_message(drop_info: dict) -> str:

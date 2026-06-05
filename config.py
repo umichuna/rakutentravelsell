@@ -5,7 +5,7 @@ from pathlib import Path
 RAKUTEN_APP_ID = os.environ.get("RAKUTEN_APP_ID")
 DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL")
 GMAIL_ADDRESS = os.environ.get("GMAIL_ADDRESS") or None
-GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD") or None
+GAS_GMAIL_WEBHOOK_URL = os.environ.get("GAS_GMAIL_WEBHOOK_URL") or None
 GOOGLE_TOKEN_JSON = os.environ.get("GOOGLE_TOKEN_JSON")
 SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID")
 

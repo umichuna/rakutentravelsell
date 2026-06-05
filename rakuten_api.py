@@ -85,6 +85,10 @@ def _call_api_with_retry(params: dict) -> dict | None:
                 time.sleep(wait_time)
                 continue
 
+            if response.status_code == 404:
+                # 404 = 条件に合う空室なし（エラーではなく空結果として扱う）
+                return {"hotels": []}
+
             if 400 <= response.status_code < 500:
                 log_error(f"HTTP {response.status_code}: {response.text[:100]}")
                 return None

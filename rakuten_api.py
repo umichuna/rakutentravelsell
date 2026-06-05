@@ -21,15 +21,16 @@ def fetch_vacant_plans(
     失敗時は None を返す
     """
     params = {
-        "applicationId": RAKUTEN_APP_ID,
-        "accessKey": RAKUTEN_ACCESS_KEY,
-        "hotelNo": hotel_no,
-        "checkinDate": checkin_date.replace("/", "-"),  # YYYY-MM-DD 形式に統一
-        "checkoutDate": checkout_date.replace("/", "-"),
-        "adultNum": adults,
-        "hits": 30,
-        "format": "json"
-    }
+    "applicationId": RAKUTEN_APP_ID,
+    # "accessKey": RAKUTEN_ACCESS_KEY,  ← これをコメントアウト
+    "hotelNo": hotel_no,
+    "checkinDate": checkin_date.replace("/", "-"),
+    "checkoutDate": checkout_date.replace("/", "-"),
+    "adultNum": adults,
+    "hits": 30,
+    "format": "json"
+}
+
 
     try:
         response = _call_api_with_retry(params)

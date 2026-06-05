@@ -83,7 +83,6 @@ def main():
                 checkout,
                 adults,
                 rooms,
-                breakfast_required=True
             )
 
             # 現在価格・最安価格を取得
@@ -99,7 +98,7 @@ def main():
                 continue
 
             if len(plans) == 0:
-                log_info(f"朝食付きプランなし: {hotel['hotel_name']}")
+                log_info(f"プランなし（空室なし）: {hotel['hotel_name']}")
                 update_hotel_prices(client, hotel["row_index"], None, None, timestamp_str)
                 success_count += 1
                 continue
@@ -110,13 +109,13 @@ def main():
             drop_info = check_price_drop(hotel, plans)
 
             if drop_info:
-                log_info(f"✅ 値下がり検知: {hotel['hotel_name']} (-{drop_info['drop_amount']}円)")
+                log_info(f"値下がり検知: {hotel['hotel_name']} (-{drop_info['drop_amount']}円)")
                 notify_price_drop(drop_info, email_address)
                 notification_count += 1
 
             # キャンセル無料期間の前日判定
             if hotel.get("reserved") and is_cancel_deadline_tomorrow(hotel.get("cancel_deadline", "")):
-                log_info(f"⚠️ キャンセル無料期間最終日が明日: {hotel['hotel_name']}")
+                log_info(f"[CANCEL] キャンセル無料期間最終日が明日: {hotel['hotel_name']}")
                 notify_cancel_deadline(hotel)
                 notification_count += 1
 

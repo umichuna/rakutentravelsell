@@ -121,7 +121,7 @@ def get_hotels(client: gspread.Client) -> list[dict]:
 
 def extract_hotel_no_from_url(url: str) -> str:
     """URLからhotelNoを抽出"""
-    match = re.search(r'/(\d+)/?$', url)
+    match = re.search(r'/HOTEL/(\d+)/', url)
     if match:
         return match.group(1)
     return ""

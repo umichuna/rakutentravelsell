@@ -13,6 +13,7 @@ def fetch_vacant_plans(
     checkin_date: str,
     checkout_date: str,
     adults: int,
+    rooms: int = 1,
     breakfast_required: bool = True
 ) -> list[dict] | None:
     """
@@ -21,15 +22,16 @@ def fetch_vacant_plans(
     失敗時は None を返す
     """
     params = {
-    "applicationId": RAKUTEN_APP_ID,
-    # "accessKey": RAKUTEN_ACCESS_KEY,  ← これをコメントアウト
-    "hotelNo": hotel_no,
-    "checkinDate": checkin_date.replace("/", "-"),
-    "checkoutDate": checkout_date.replace("/", "-"),
-    "adultNum": adults,
-    "hits": 30,
-    "format": "json"
-}
+        "applicationId": RAKUTEN_APP_ID,
+        "accessKey": RAKUTEN_ACCESS_KEY,
+        "hotelNo": hotel_no,
+        "checkinDate": checkin_date.replace("/", "-"),
+        "checkoutDate": checkout_date.replace("/", "-"),
+        "adultNum": adults,
+        "roomNum": rooms,
+        "hits": 30,
+        "format": "json"
+    }
 
 
     try:
@@ -98,8 +100,8 @@ def _call_api_with_retry(params: dict) -> dict | None:
 def _extract_breakfast_plans(api_response: dict, breakfast_required: bool = True) -> list[dict] | None:
     """
     APIレスポンスからプラン情報を抽出
-    breakfast_required=True の場合は朝食判定キーワードで絞り込み
-    成功時はプランのリスト、失敗時は None を返す
+    roomInfo内のroomBasicInfoとdailyChargeは別要素として交互に並んでいる
+    breakfast_required=True の場合は withBreakfastFlag=1 またはキーワード一致で絞り込み
     """
     try:
         if "hotels" not in api_response or not api_response["hotels"]:
@@ -115,36 +117,43 @@ def _extract_breakfast_plans(api_response: dict, breakfast_required: bool = True
                 if "roomInfo" not in hotel_info:
                     continue
 
-                for room_info in hotel_info["roomInfo"]:
-                    if "dailyCharge" not in room_info:
-                        continue
+                room_items = hotel_info["roomInfo"]
 
-                    plan_name = room_info.get("roomBasicInfo", {}).get("planName", "")
-                    daily_charge = room_info["dailyCharge"]
+                # roomBasicInfo と dailyCharge は交互に並んでいる
+                # roomBasicInfo を先に収集し、対応する dailyCharge とペアにする
+                basic_info = None
+                for item in room_items:
+                    if "roomBasicInfo" in item:
+                        basic_info = item["roomBasicInfo"]
+                    elif "dailyCharge" in item and basic_info is not None:
+                        daily_charge = item["dailyCharge"]
+                        plan_name = basic_info.get("planName", "")
 
-                    # 価格取得（優先順位: rakutenCharge > total）
-                    price = daily_charge.get("rakutenCharge") or daily_charge.get("total")
-                    if price is None:
-                        continue
+                        # 価格取得（優先順位: rakutenCharge > total）
+                        price = daily_charge.get("rakutenCharge") or daily_charge.get("total")
+                        if price is None:
+                            basic_info = None
+                            continue
 
-                    # 朝食判定
-                    has_breakfast = _check_breakfast(plan_name)
+                        # 朝食判定: フラグ優先、なければキーワード
+                        with_breakfast_flag = basic_info.get("withBreakfastFlag", 0)
+                        breakfast_select_flag = basic_info.get("breakfastSelectFlag", 0)
+                        has_breakfast = (with_breakfast_flag == 1 or breakfast_select_flag == 1
+                                         or _check_breakfast(plan_name))
 
-                    if breakfast_required and not has_breakfast:
-                        continue
+                        if breakfast_required and not has_breakfast:
+                            basic_info = None
+                            continue
 
-                    plans.append({
-                        "price": int(price),
-                        "plan_name": plan_name,
-                        "has_breakfast": has_breakfast
-                    })
+                        plans.append({
+                            "price": int(price),
+                            "plan_name": plan_name,
+                            "has_breakfast": has_breakfast
+                        })
+                        basic_info = None
 
-        if not plans:
-            return None
-
-        # 価格でソートして最安値を返す
         plans.sort(key=lambda x: x["price"])
-        return plans
+        return plans  # 空リスト [] も正常（朝食プランなし）
 
     except Exception as e:
         log_error(f"Error parsing API response: {str(e)}")

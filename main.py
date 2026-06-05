@@ -65,7 +65,8 @@ def main():
     # 設定シートから日程を取得
     checkin = config.get("チェックイン日", "")
     checkout = config.get("チェックアウト日", "")
-    adults = int(config.get("大人人数", "1") or "1")
+    adults = int(config.get("大人人数", "2") or "2")
+    rooms = int(config.get("部屋数", "1") or "1")
 
     for hotel in hotels:
         try:
@@ -81,6 +82,7 @@ def main():
                 checkin,
                 checkout,
                 adults,
+                rooms,
                 breakfast_required=True
             )
 
@@ -89,11 +91,17 @@ def main():
             jst_now = get_jst_now()
             timestamp_str = jst_now.strftime("%Y/%m/%d %H:%M:%S")
 
-            if plans is None or current_price is None:
+            if plans is None:
                 log_error(f"API取得失敗: {hotel['hotel_name']}")
                 update_hotel_prices(client, hotel["row_index"], None, None, timestamp_str)
                 error_count += 1
                 error_messages.append(f"{hotel['hotel_name']}: API取得失敗")
+                continue
+
+            if len(plans) == 0:
+                log_info(f"朝食付きプランなし: {hotel['hotel_name']}")
+                update_hotel_prices(client, hotel["row_index"], None, None, timestamp_str)
+                success_count += 1
                 continue
 
             success_count += 1

@@ -12,7 +12,7 @@ SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID")
 
 LOCAL_TOKEN_PATH = Path.home() / "OneDrive" / "ドキュメント" / "Python" / "import" / "token.json"
 
-RAKUTEN_API_URL = "https://app.rakuten.co.jp/services/api/Travel/VacantHotelSearch/20170426"
+RAKUTEN_API_URL = "https://openapi.rakuten.co.jp/engine/api/Travel/VacantHotelSearch/20170426"
 REQUEST_HEADERS = {
     "Referer": "https://github.com/",
     "Origin": "https://github.com/"

@@ -1,6 +1,9 @@
 import os
 import sys
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()  # .env ファイルがあれば読み込む（なければ何もしない）
 
 RAKUTEN_APP_ID = os.environ.get("RAKUTEN_APP_ID")
 RAKUTEN_ACCESS_KEY = os.environ.get("RAKUTEN_ACCESS_KEY")
